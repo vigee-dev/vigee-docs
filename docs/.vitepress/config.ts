@@ -26,6 +26,8 @@ export default defineConfig({
           items: [
             { text: 'Démarrage rapide', link: '/guides/getting-started' },
             { text: 'Setup Laravel + Next.js', link: '/guides/laravel-next-setup' },
+            { text: 'GitHub Actions - Init serveur', link: '/guides/github-actions-init' },
+            { text: 'Documentation API (Scribe)', link: '/guides/scribe-documentation' },
             { text: 'Déploiement', link: '/guides/deployment' }
           ]
         }
@@ -66,7 +68,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/votre-org/vigee-docs' }
+      { icon: 'github', link: 'https://github.com/vigee-dev/vigee-docs' }
     ],
 
     search: {
@@ -88,7 +90,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/votre-org/vigee-docs/edit/main/docs/:path',
+      pattern: 'https://github.com/vigee-dev/vigee-docs/edit/main/docs/:path',
       text: 'Modifier cette page sur GitHub'
     }
   },
