@@ -17,7 +17,8 @@ export default defineConfig({
       { text: 'Accueil', link: '/' },
       { text: 'Guides', link: '/guides/getting-started' },
       { text: 'Architecture', link: '/architecture/monorepo-setup' },
-      { text: 'API', link: '/api/endpoints' }
+      { text: 'API', link: '/api/endpoints' },
+      { text: 'Emails', link: '/mails-templates/' }
     ],
 
     sidebar: {
@@ -26,6 +27,7 @@ export default defineConfig({
           text: 'Guides',
           items: [
             { text: 'Démarrage rapide', link: '/guides/getting-started' },
+            { text: 'Monorepo Setup', link: '/guides/monorepo-setup' },
             { text: 'Setup Laravel + Next.js', link: '/guides/laravel-next-setup' },
             { text: 'pnpm Workspace', link: '/guides/pnpm-workspace' },
             { text: 'GitHub Actions - Init serveur', link: '/guides/github-actions-init' },
@@ -64,6 +66,43 @@ export default defineConfig({
           text: 'Dépannage',
           items: [
             { text: 'Problèmes courants', link: '/troubleshooting/common-issues' }
+          ]
+        }
+      ],
+      '/mails-templates/': [
+        {
+          text: 'Templates d\'emails',
+          items: [
+            { text: 'Vue d\'ensemble', link: '/mails-templates/' }
+          ]
+        },
+        {
+          text: 'Livraisons & Développements',
+          items: [
+            { text: 'Livraison vidéo', link: '/mails-templates/livraison-video' },
+            { text: 'Suivi développements', link: '/mails-templates/suivi-developpements' },
+            { text: 'PV de livraison', link: '/mails-templates/pv-livraison' }
+          ]
+        },
+        {
+          text: 'Contrats & Facturation',
+          items: [
+            { text: 'Maintenance annuelle', link: '/mails-templates/maintenance-annuelle' },
+            { text: 'Révision tarifs', link: '/mails-templates/revision-tarifs' }
+          ]
+        },
+        {
+          text: 'Technique & Configuration',
+          items: [
+            { text: 'GitHub + Bucket S3', link: '/mails-templates/github-bucket-s3' },
+            { text: 'Certifications ISO', link: '/mails-templates/certifications-iso' }
+          ]
+        },
+        {
+          text: 'Relation client',
+          items: [
+            { text: 'Demande d\'avis Google', link: '/mails-templates/avis-google' },
+            { text: 'Mise en relation CII', link: '/mails-templates/mise-en-relation-cii' }
           ]
         }
       ]

@@ -24,5 +24,5 @@ composer install
 
 ## Prochaines étapes
 
+- [Monorepo Setup](/guides/monorepo-setup) - Guide complet pour passer en monorepo
 - [Setup Laravel + Next.js](/guides/laravel-next-setup) - Configuration détaillée du monorepo
-- [Architecture](/architecture/monorepo-setup) - Comprendre la structure du projet
