@@ -15,7 +15,7 @@ export default defineConfig({
 
     nav: [
       { text: 'Accueil', link: '/' },
-      { text: 'Guides', link: '/guides/getting-started' },
+      { text: 'Procédures', link: '/guides/getting-started' },
       { text: 'API', link: '/api/endpoints' },
       { text: 'Mobile', link: '/mobile/' },
       { text: 'Design', link: '/design/' },
@@ -25,7 +25,7 @@ export default defineConfig({
     sidebar: {
       '/guides/': [
         {
-          text: 'Guides',
+          text: 'Procédures',
           items: [
             { text: 'Démarrage rapide', link: '/guides/getting-started' },
             { text: 'Monorepo Setup', link: '/guides/monorepo-setup' },
