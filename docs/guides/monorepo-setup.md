@@ -1,52 +1,108 @@
-# Guide de Migration Monorepo pnpm - Next.js + Laravel
+# Guide Complet : Monorepo Next.js + Laravel avec pnpm
+
+## Prompt à copier pour Claude
+
+::: tip Prérequis avant de lancer le prompt
+1. **Créer manuellement** la structure `apps/web/` et y déplacer les fichiers frontend
+2. **Configurer Vercel** : Root Directory = `apps/web` + "Include files outside root directory" activé
+3. **Ajouter les secrets GitHub** (voir section "Configurer les secrets GitHub")
+4. **Préparer le serveur** : supprimer le `.git` existant via SSH
+:::
+
+Copie ce prompt et colle-le dans Claude avec ton projet ouvert :
+
+```
+Je souhaite passer ce projet en monorepo pnpm (Next.js + Laravel).
+
+## Structure cible
+- apps/web/ → Next.js frontend (déploiement Vercel)
+- apps/api/ → Laravel backend (déploiement rsync + SSH, pas de git sur le serveur)
+
+## Ce que tu dois faire
+
+1. **Créer/vérifier les fichiers de configuration racine :**
+   - `package.json` (orchestrateur avec scripts dev:web, dev:api, build:web)
+   - `pnpm-workspace.yaml` (avec apps/web et le design system si submodule)
+   - `.npmrc` (shamefully-hoist=true, public-hoist-pattern[]=*)
+   - `.gitignore` (node_modules, vendor, .next, .env, storage/*.key, etc.)
+
+2. **Configurer le package.json de apps/web :**
+   - Vérifier que le "name" correspond au filtre pnpm (ex: "mon-projet-web")
+
+3. **Créer les GitHub Actions :**
+   - `.github/workflows/ci-web.yml` pour le frontend (Vercel)
+   - `.github/workflows/ci-api.yml` pour le backend avec rsync :
+     ```
+     uses: burnett01/rsync-deployments@6.0.0
+     with:
+       switches: -avzr --delete --exclude='.env' --exclude='vendor' --exclude='storage/logs/*' --exclude='storage/framework/cache/*' --exclude='storage/framework/sessions/*' --exclude='storage/framework/views/*' --exclude='storage/oauth-*.key' --exclude='composer.phar' --exclude='.git'
+       path: apps/api/
+     ```
+
+4. **Si design system en submodule dans apps/web/app/components/ :**
+   - Ajouter le chemin dans pnpm-workspace.yaml
+   - Décommenter la step git submodule dans ci-web.yml
+
+## Documentation de référence
+https://docs.vigee.fr/guides/monorepo-setup.html
+
+Commence par lire les fichiers existants pour comprendre la structure actuelle, puis effectue les modifications nécessaires.
+```
+
+---
 
 ## Objectif
 
 Fusionner un projet **Next.js** (frontend) et **Laravel** (backend) dans un monorepo pnpm avec :
 
 - Déploiement frontend via **Vercel**
-- Déploiement backend via **rsync + SSH** (Hostinger ou autre)
-- Workflows GitHub Actions séparés par dossier (`apps/web/**` et `apps/api/**`)
+- Déploiement backend via **rsync + SSH** (pas de git sur le serveur)
+- Workflows GitHub Actions séparés par dossier
+- Support du design system en submodule Git
 
 ## Structure cible
 
 ```
 mon-projet/
 ├── apps/
-│   ├── web/                    # Next.js (frontend)
+│   ├── web/                              # Next.js frontend
 │   │   ├── app/
-│   │   ├── package.json        # name: "mon-projet-web"
+│   │   │   └── components/
+│   │   │       └── vigee-designsystem/   # Design system (submodule Git)
+│   │   ├── package.json                  # name: "mon-projet-web"
 │   │   ├── next.config.js
 │   │   └── ...
-│   └── api/                    # Laravel (backend)
+│   └── api/                              # Laravel backend
 │       ├── app/
 │       ├── composer.json
 │       ├── artisan
 │       └── ...
-├── package.json                # Orchestrateur racine
+├── packages/                             # Packages partagés (optionnel)
+├── package.json                          # Orchestrateur racine
 ├── pnpm-workspace.yaml
+├── pnpm-lock.yaml
 ├── .npmrc
-├── .github/
-│   └── workflows/
-│       ├── ci-web.yml          # Déploiement Vercel
-│       └── ci-api.yml          # Déploiement rsync + SSH
-└── .gitignore
+├── .gitignore
+└── .github/
+    └── workflows/
+        ├── ci-web.yml                    # Déploiement Vercel
+        └── ci-api.yml                    # Déploiement rsync + SSH
 ```
 
-## Étapes de migration
+---
 
-### Étape 1 : Préparer le projet frontend existant
+## Étape 1 : Préparer le projet frontend existant
 
-#### 1.1 Créer la structure de dossiers
+### 1.1 Créer la structure de dossiers
 
 ```bash
 cd /chemin/vers/mon-projet-frontend
 mkdir -p apps/web
 ```
 
-#### 1.2 Déplacer les fichiers frontend dans `apps/web/`
+### 1.2 Déplacer les fichiers frontend dans `apps/web/`
 
-Glisser-déposer **tous les fichiers** du frontend dans `apps/web/`, **SAUF** :
+Déplacer **tous les fichiers** du frontend dans `apps/web/`, **SAUF** :
 
 - `.git/` (ne jamais toucher)
 - `.github/` (reste à la racine)
@@ -54,7 +110,7 @@ Glisser-déposer **tous les fichiers** du frontend dans `apps/web/`, **SAUF** :
 - `node_modules/` (sera régénéré)
 - `.next/` (sera régénéré)
 
-#### 1.3 Mettre à jour le nom du package
+### 1.3 Mettre à jour le nom du package
 
 Dans `apps/web/package.json`, changer le nom :
 
@@ -65,9 +121,11 @@ Dans `apps/web/package.json`, changer le nom :
 }
 ```
 
-### Étape 2 : Créer les fichiers de configuration racine
+---
 
-#### 2.1 `package.json` (racine)
+## Étape 2 : Créer les fichiers de configuration racine
+
+### 2.1 `package.json` (racine)
 
 ```json
 {
@@ -88,52 +146,94 @@ Dans `apps/web/package.json`, changer le nom :
 }
 ```
 
-#### 2.2 `pnpm-workspace.yaml` (racine)
+### 2.2 `pnpm-workspace.yaml` (racine)
 
 ```yaml
 packages:
   - apps/web
-  # Si tu as un submodule design system :
-  # - apps/web/app/components/mon-designsystem
+  # Si design system en submodule dans apps/web :
+  # - apps/web/app/components/vigee-designsystem
 
 onlyBuiltDependencies:
   - "@sentry/cli"
   - sharp
 ```
 
-#### 2.3 `.npmrc` (racine)
+### 2.3 `.npmrc` (racine)
 
 ```ini
 shamefully-hoist=true
 public-hoist-pattern[]=*
 ```
 
-### Étape 3 : Ajouter le backend Laravel
+### 2.4 `.gitignore` (racine)
 
-#### Option A : Git Subtree (conserve l'historique)
+```gitignore
+# Dependencies
+node_modules/
+vendor/
+
+# Build
+.next/
+.turbo/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Laravel specific
+apps/api/storage/*.key
+apps/api/storage/logs/*
+apps/api/bootstrap/cache/*
+
+# pnpm
+.pnpm-debug.log
+```
+
+---
+
+## Étape 3 : Ajouter le backend Laravel
+
+### Option A : Git Subtree (conserve l'historique)
 
 ```bash
 cd /chemin/vers/mon-projet
 git subtree add --prefix=apps/api https://github.com/mon-org/mon-projet-backend.git main --squash
 ```
 
-#### Option B : Copie simple (sans historique)
+### Option B : Copie simple (sans historique)
 
 ```bash
 cp -r /chemin/vers/backend/* apps/api/
 ```
 
-#### 3.1 Supprimer le `.github` du backend
+### 3.1 Supprimer le `.github` du backend
 
-Le dossier `.github` importé avec le backend doit être supprimé (les workflows sont à la racine) :
+Le dossier `.github` importé avec le backend doit être supprimé :
 
 ```bash
 rm -rf apps/api/.github
 ```
 
-### Étape 4 : Configurer les GitHub Actions
+---
 
-#### 4.1 Workflow Frontend : `.github/workflows/ci-web.yml`
+## Étape 4 : Configurer les GitHub Actions
+
+### 4.1 Workflow Frontend : `.github/workflows/ci-web.yml`
 
 ```yaml
 name: "[MonProjet] Web - Deploy"
@@ -165,7 +265,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Si tu as un submodule :
+      # Si tu as un submodule design system :
       # - name: Update git submodules
       #   run: |
       #     cd ../..
@@ -209,7 +309,7 @@ jobs:
           vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
 ```
 
-#### 4.2 Workflow Backend : `.github/workflows/ci-api.yml`
+### 4.2 Workflow Backend : `.github/workflows/ci-api.yml`
 
 ```yaml
 name: "[MonProjet] API - Deploy"
@@ -300,17 +400,21 @@ jobs:
             php artisan cache:clear
 ```
 
-### Étape 5 : Configurer Vercel
+---
+
+## Étape 5 : Configurer Vercel
 
 1. Aller dans **Settings** → **General**
 2. **Root Directory** : `apps/web`
 3. **Include files outside the root directory in the Build Step** : ✅ Activé
 
-### Étape 6 : Configurer les secrets GitHub
+---
+
+## Étape 6 : Configurer les secrets GitHub
 
 Aller dans **Settings** → **Secrets and variables** → **Actions** et ajouter :
 
-#### Frontend (Vercel)
+### Frontend (Vercel)
 
 | Secret                | Description                 |
 | --------------------- | --------------------------- |
@@ -320,7 +424,7 @@ Aller dans **Settings** → **Secrets and variables** → **Actions** et ajouter
 | `NEXT_PUBLIC_API_URL` | URL de l'API                |
 | `NEXTAUTH_SECRET`     | Secret NextAuth             |
 
-#### Backend (SSH/rsync)
+### Backend (SSH/rsync)
 
 | Secret            | Description                             |
 | ----------------- | --------------------------------------- |
@@ -331,7 +435,7 @@ Aller dans **Settings** → **Secrets and variables** → **Actions** et ajouter
 | `ENV_DEV_BASE64`  | Fichier .env encodé en base64 pour DEV  |
 | `ENV_PROD_BASE64` | Fichier .env encodé en base64 pour PROD |
 
-#### Encoder un fichier .env en base64
+### Encoder un fichier .env en base64
 
 ```bash
 cat .env | base64 -w 0
@@ -339,7 +443,9 @@ cat .env | base64 -w 0
 cat .env | base64
 ```
 
-### Étape 7 : Préparer le serveur (première fois)
+---
+
+## Étape 7 : Préparer le serveur (première fois)
 
 En SSH sur le serveur, supprimer le lien git existant si présent :
 
@@ -350,13 +456,78 @@ rm -rf .git
 
 Cela garantit que seul rsync est utilisé pour le déploiement.
 
-### Étape 8 : Commit et push
+---
+
+## Étape 8 : Design system en submodule
+
+Si le design system est un submodule Git dans `apps/web/app/components/` :
+
+### Ajouter le submodule
+
+```bash
+cd apps/web/app/components
+git submodule add https://github.com/vigee-dev/vigee-designsystem.git
+```
+
+### Mettre à jour le `.gitmodules` à la racine
+
+```ini
+[submodule "apps/web/app/components/vigee-designsystem"]
+    path = apps/web/app/components/vigee-designsystem
+    url = https://github.com/vigee-dev/vigee-designsystem.git
+```
+
+### Mettre à jour `pnpm-workspace.yaml`
+
+```yaml
+packages:
+  - apps/web
+  - apps/web/app/components/vigee-designsystem
+
+onlyBuiltDependencies:
+  - "@sentry/cli"
+  - sharp
+```
+
+### Mettre à jour le submodule
+
+```bash
+cd apps/web/app/components/vigee-designsystem
+git pull origin main
+cd ../../../../../
+git add apps/web/app/components/vigee-designsystem
+git commit -m "chore: update design system"
+```
+
+---
+
+## Étape 9 : Commit et push
 
 ```bash
 git add .
 git commit -m "chore: migrate to pnpm monorepo"
 git push origin dev
 ```
+
+---
+
+## Résumé des exclusions rsync
+
+Le déploiement backend via rsync exclut automatiquement :
+
+| Exclusion                       | Raison                                      |
+| ------------------------------- | ------------------------------------------- |
+| `.env`                          | Fichier de configuration sensible           |
+| `vendor`                        | Dépendances Composer (réinstallées serveur) |
+| `storage/logs/*`                | Logs Laravel                                |
+| `storage/framework/cache/*`     | Cache Laravel                               |
+| `storage/framework/sessions/*`  | Sessions Laravel                            |
+| `storage/framework/views/*`     | Vues compilées                              |
+| `storage/oauth-*.key`           | Clés OAuth (Laravel Passport)               |
+| `composer.phar`                 | Binaire Composer local                      |
+| `.git`                          | Historique Git                              |
+
+---
 
 ## Fonctionnement des déploiements
 
@@ -366,6 +537,8 @@ git push origin dev
 | Push dans `apps/api/**`            | `ci-api.yml` → rsync + SSH |
 | Push dans les deux                 | Les deux workflows         |
 | Push ailleurs (racine, docs, etc.) | Aucun workflow             |
+
+---
 
 ## Commandes utiles
 
@@ -385,17 +558,6 @@ pnpm dev:api
 pnpm build:web
 ```
 
-### Git Submodule (si design system)
-
-```bash
-# Mettre à jour le submodule
-cd apps/web/app/components/mon-designsystem
-git pull origin main
-cd ../../../../..
-git add apps/web/app/components/mon-designsystem
-git commit -m "chore: update design system"
-```
-
 ### Git Subtree (synchroniser le backend si besoin)
 
 ```bash
@@ -406,19 +568,7 @@ git subtree pull --prefix=apps/api https://github.com/mon-org/backend.git main -
 git subtree push --prefix=apps/api https://github.com/mon-org/backend.git main
 ```
 
-## Vérification sur le serveur
-
-```bash
-# Vérifier les fichiers récemment modifiés
-ls -lt | head -10
-
-# Vérifier Laravel
-php artisan --version
-php artisan migrate:status
-
-# Vérifier qu'il n'y a plus de .git
-ls -la .git  # Doit retourner "No such file or directory"
-```
+---
 
 ## Checklist de migration
 
@@ -427,6 +577,7 @@ ls -la .git  # Doit retourner "No such file or directory"
 - [ ] Créer `package.json` racine
 - [ ] Créer `pnpm-workspace.yaml`
 - [ ] Créer `.npmrc`
+- [ ] Créer/mettre à jour `.gitignore`
 - [ ] Ajouter le backend dans `apps/api/` (subtree ou copie)
 - [ ] Supprimer `apps/api/.github/` si présent
 - [ ] Créer `.github/workflows/ci-web.yml`
@@ -434,34 +585,32 @@ ls -la .git  # Doit retourner "No such file or directory"
 - [ ] Configurer Vercel (Root Directory + Include files)
 - [ ] Ajouter les secrets GitHub
 - [ ] Supprimer `.git` sur le serveur (SSH)
+- [ ] Configurer le submodule design system si nécessaire
 - [ ] Tester `pnpm install` localement
 - [ ] Push sur `dev` et vérifier les workflows
 - [ ] Push sur `main` et vérifier en production
 - [ ] Archiver l'ancien repo backend sur GitHub
 
+---
+
 ## Notes importantes
 
 ::: warning Exclusions rsync
-rsync exclut automatiquement :
-- `.env` - fichier de configuration sensible
-- `vendor/` - dépendances Composer (réinstallées sur le serveur)
-- `storage/logs/*` - logs Laravel
-- `storage/framework/cache/*` - cache Laravel
-- `storage/framework/sessions/*` - sessions Laravel
-- `storage/framework/views/*` - vues compilées
-- `storage/oauth-*.key` - clés OAuth (Passport)
-- `composer.phar` - binaire Composer local
-- `.git` - historique Git
+Le rsync exclut automatiquement les fichiers sensibles et générés. Ne jamais modifier ces exclusions sans raison.
 :::
 
 ::: info Fichier .env
-Le .env est recréé à chaque déploiement via le secret `ENV_*_BASE64`
+Le .env est recréé à chaque déploiement via le secret `ENV_*_BASE64`. Il n'est jamais versionné.
 :::
 
 ::: tip Workflows conditionnels
-Les workflows ne se déclenchent que si les fichiers correspondants changent (paths filter)
+Les workflows ne se déclenchent que si les fichiers correspondants changent (paths filter).
 :::
 
 ::: warning Configuration Vercel
-Vercel doit avoir "Include files outside root directory" activé
+Vercel doit avoir "Include files outside root directory" activé pour accéder aux fichiers racine du monorepo.
+:::
+
+::: danger Pas de git sur le serveur
+Le serveur de production/staging ne doit PAS avoir de dossier `.git`. Seul rsync est utilisé pour le déploiement.
 :::
