@@ -17,6 +17,8 @@ export default defineConfig({
       { text: 'Accueil', link: '/' },
       { text: 'Guides', link: '/guides/getting-started' },
       { text: 'API', link: '/api/endpoints' },
+      { text: 'Mobile', link: '/mobile/' },
+      { text: 'Design', link: '/design/' },
       { text: 'Emails', link: '/mails-templates/' }
     ],
 
@@ -32,14 +34,6 @@ export default defineConfig({
             { text: 'GitHub Actions - Init serveur', link: '/guides/github-actions-init' },
             { text: 'Documentation API (Scribe)', link: '/guides/scribe-documentation' },
             { text: 'Déploiement', link: '/guides/deployment' }
-          ]
-        }
-      ],
-      '/architecture/': [
-        {
-          text: 'Architecture',
-          items: [
-            { text: 'Setup Monorepo', link: '/architecture/monorepo-setup' }
           ]
         }
       ],
@@ -65,6 +59,26 @@ export default defineConfig({
           text: 'Dépannage',
           items: [
             { text: 'Problèmes courants', link: '/troubleshooting/common-issues' }
+          ]
+        }
+      ],
+      '/design/': [
+        {
+          text: 'Design UX / UI',
+          items: [
+            { text: 'Vue d\'ensemble', link: '/design/' },
+            { text: 'Vigee Design', link: '/design/vigee-design' },
+            { text: 'Illustrations', link: '/design/illustrations' }
+          ]
+        }
+      ],
+      '/mobile/': [
+        {
+          text: 'Mobile / React Native',
+          items: [
+            { text: 'Vue d\'ensemble', link: '/mobile/' },
+            { text: 'Setup React Native', link: '/mobile/setup-react-native' },
+            { text: 'Composants UI', link: '/mobile/composants-ui' }
           ]
         }
       ],

@@ -8,9 +8,8 @@ Guide pour configurer un workspace pnpm dans un monorepo Next.js + Laravel.
 mon-projet/
 ├── apps/
 │   ├── web/                              # Next.js frontend
+│   │   ├── vigee-designsystem/           # Design system (submodule)
 │   │   ├── app/
-│   │   │   └── components/
-│   │   │       └── vigee-designsystem/   # Design system (submodule)
 │   │   ├── package.json
 │   │   └── ...
 │   └── api/                              # Laravel backend
@@ -30,7 +29,7 @@ mon-projet/
 packages:
   - apps/web
   # Si design system en submodule dans apps/web :
-  # - apps/web/app/components/vigee-designsystem
+  # - apps/web/vigee-designsystem
 
 onlyBuiltDependencies:
   - "@sentry/cli"
@@ -105,17 +104,17 @@ Si le design system est un submodule Git :
 ### Ajouter le submodule
 
 ```bash
-cd apps/web/app/components
+cd apps/web
 git submodule add https://github.com/vigee-dev/vigee-designsystem.git
 ```
 
 ### Mettre à jour le submodule
 
 ```bash
-cd apps/web/app/components/vigee-designsystem
+cd apps/web/vigee-designsystem
 git pull origin main
-cd ../../../../../
-git add apps/web/app/components/vigee-designsystem
+cd ../../..
+git add apps/web/vigee-designsystem
 git commit -m "chore: update design system"
 ```
 
@@ -124,7 +123,7 @@ git commit -m "chore: update design system"
 ```yaml
 packages:
   - apps/web
-  - apps/web/app/components/vigee-designsystem
+  - apps/web/vigee-designsystem
 ```
 
 ## Commandes utiles

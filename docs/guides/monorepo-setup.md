@@ -39,7 +39,7 @@ Je souhaite passer ce projet en monorepo pnpm (Next.js + Laravel).
        path: apps/api/
      ```
 
-4. **Si design system en submodule dans apps/web/app/components/ :**
+4. **Si design system en submodule dans apps/web/ :**
    - Ajouter le chemin dans pnpm-workspace.yaml
    - Décommenter la step git submodule dans ci-web.yml
 
@@ -66,9 +66,8 @@ Fusionner un projet **Next.js** (frontend) et **Laravel** (backend) dans un mono
 mon-projet/
 ├── apps/
 │   ├── web/                              # Next.js frontend
+│   │   ├── vigee-designsystem/           # Design system (submodule Git)
 │   │   ├── app/
-│   │   │   └── components/
-│   │   │       └── vigee-designsystem/   # Design system (submodule Git)
 │   │   ├── package.json                  # name: "mon-projet-web"
 │   │   ├── next.config.js
 │   │   └── ...
@@ -152,7 +151,7 @@ Dans `apps/web/package.json`, changer le nom :
 packages:
   - apps/web
   # Si design system en submodule dans apps/web :
-  # - apps/web/app/components/vigee-designsystem
+  # - apps/web/vigee-designsystem
 
 onlyBuiltDependencies:
   - "@sentry/cli"
@@ -460,20 +459,20 @@ Cela garantit que seul rsync est utilisé pour le déploiement.
 
 ## Étape 8 : Design system en submodule
 
-Si le design system est un submodule Git dans `apps/web/app/components/` :
+Si le design system est un submodule Git dans `apps/web/` :
 
 ### Ajouter le submodule
 
 ```bash
-cd apps/web/app/components
+cd apps/web
 git submodule add https://github.com/vigee-dev/vigee-designsystem.git
 ```
 
 ### Mettre à jour le `.gitmodules` à la racine
 
 ```ini
-[submodule "apps/web/app/components/vigee-designsystem"]
-    path = apps/web/app/components/vigee-designsystem
+[submodule "apps/web/vigee-designsystem"]
+    path = apps/web/vigee-designsystem
     url = https://github.com/vigee-dev/vigee-designsystem.git
 ```
 
@@ -482,7 +481,7 @@ git submodule add https://github.com/vigee-dev/vigee-designsystem.git
 ```yaml
 packages:
   - apps/web
-  - apps/web/app/components/vigee-designsystem
+  - apps/web/vigee-designsystem
 
 onlyBuiltDependencies:
   - "@sentry/cli"
@@ -492,10 +491,10 @@ onlyBuiltDependencies:
 ### Mettre à jour le submodule
 
 ```bash
-cd apps/web/app/components/vigee-designsystem
+cd apps/web/vigee-designsystem
 git pull origin main
-cd ../../../../../
-git add apps/web/app/components/vigee-designsystem
+cd ../../..
+git add apps/web/vigee-designsystem
 git commit -m "chore: update design system"
 ```
 
