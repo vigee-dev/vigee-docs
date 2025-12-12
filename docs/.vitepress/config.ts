@@ -16,7 +16,6 @@ export default defineConfig({
     nav: [
       { text: 'Accueil', link: '/' },
       { text: 'Guides', link: '/guides/getting-started' },
-      { text: 'Architecture', link: '/architecture/monorepo-setup' },
       { text: 'API', link: '/api/endpoints' },
       { text: 'Emails', link: '/mails-templates/' }
     ],
