@@ -411,7 +411,11 @@ jobs:
 
 ## Étape 6 : Configurer les secrets GitHub
 
-Aller dans **Settings** → **Secrets and variables** → **Actions** et ajouter :
+Aller dans les paramètres du repository GitHub :
+
+**[Settings → Secrets and variables → Actions](https://github.com/vigee-dev/mba-web/settings/secrets/actions)**
+
+Et ajouter les secrets suivants :
 
 ### Frontend (Vercel)
 
