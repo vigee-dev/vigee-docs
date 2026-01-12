@@ -33,7 +33,8 @@ export default defineConfig({
             { text: 'pnpm Workspace', link: '/guides/pnpm-workspace' },
             { text: 'GitHub Actions - Init serveur', link: '/guides/github-actions-init' },
             { text: 'Documentation API (Scribe)', link: '/guides/scribe-documentation' },
-            { text: 'Déploiement', link: '/guides/deployment' }
+            { text: 'Déploiement', link: '/guides/deployment' },
+            { text: 'Route Logs Agent', link: '/guides/route-logs-agent' }
           ]
         }
       ],
