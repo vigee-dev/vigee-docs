@@ -362,6 +362,58 @@ curl -X GET "https://api.votreprojet.com/api/vigee/logs?hours=24&limit=50" \
 
 ---
 
+## Support des logs Daily
+
+::: tip Configuration LOG_STACK=daily
+Si votre projet Laravel utilise `LOG_STACK=daily` (fichiers `laravel-YYYY-MM-DD.log`), adaptez le controller pour rechercher dans plusieurs fichiers :
+:::
+
+```php
+/**
+ * Récupère les fichiers de log pertinents (daily + standard)
+ */
+private function getLogFiles(int $hours): array
+{
+    $logPath = storage_path('logs');
+    $files = [];
+
+    // Fichier standard laravel.log
+    $standardLog = $logPath.'/laravel.log';
+    if (file_exists($standardLog)) {
+        $files[] = $standardLog;
+    }
+
+    // Fichiers daily (laravel-YYYY-MM-DD.log)
+    $daysToCheck = (int) ceil($hours / 24) + 1;
+    for ($i = 0; $i < $daysToCheck; $i++) {
+        $date = Carbon::now()->subDays($i)->format('Y-m-d');
+        $dailyLog = $logPath.'/laravel-'.$date.'.log';
+        if (file_exists($dailyLog)) {
+            $files[] = $dailyLog;
+        }
+    }
+
+    return array_unique($files);
+}
+```
+
+Puis dans `getErrors()`, itérez sur les fichiers :
+
+```php
+$logFiles = $this->getLogFiles($hours);
+$errors = [];
+
+foreach ($logFiles as $logFile) {
+    $fileErrors = $this->parseLogFile($logFile, $hours, $limit - count($errors), $level);
+    $errors = array_merge($errors, $fileErrors);
+    if (count($errors) >= $limit) {
+        break;
+    }
+}
+```
+
+---
+
 ## Bonnes pratiques
 
 ### Sécurité
