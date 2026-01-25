@@ -17,12 +17,59 @@ export default defineConfig({
       { text: 'Accueil', link: '/' },
       { text: 'Procédures', link: '/guides/getting-started' },
       { text: 'API', link: '/api/endpoints' },
+      { text: 'Agents', link: '/agents/' },
       { text: 'Mobile', link: '/mobile/' },
       { text: 'Design', link: '/design/' },
       { text: 'Emails', link: '/mails-templates/' }
     ],
 
     sidebar: {
+      '/agents/': [
+        {
+          text: 'Agents',
+          items: [
+            { text: 'Vue d\'ensemble', link: '/agents/' },
+            { text: 'Template CLAUDE.md', link: '/agents/claude-template' }
+          ]
+        },
+        {
+          text: 'A. Foundations',
+          items: [
+            { text: 'Feature Spec', link: '/agents/feature-spec' },
+            { text: 'ADR', link: '/agents/adr' },
+            { text: 'Codebase Consistency', link: '/agents/codebase-consistency' }
+          ]
+        },
+        {
+          text: 'B. Build',
+          items: [
+            { text: 'Domain & Database', link: '/agents/domain-database' },
+            { text: 'API Contract', link: '/agents/api-contract' },
+            { text: 'Frontend Integration', link: '/agents/frontend-integration' }
+          ]
+        },
+        {
+          text: 'C. Safety',
+          items: [
+            { text: 'Security Gate', link: '/agents/security-gate' },
+            { text: 'Data Protection', link: '/agents/data-protection' }
+          ]
+        },
+        {
+          text: 'D. Quality',
+          items: [
+            { text: 'Quality Gate', link: '/agents/quality-gate' },
+            { text: 'Performance Gate', link: '/agents/performance-gate' }
+          ]
+        },
+        {
+          text: 'E. Delivery',
+          items: [
+            { text: 'Release & Migration', link: '/agents/release-plan' },
+            { text: 'Observability Gate', link: '/agents/observability-gate' }
+          ]
+        }
+      ],
       '/guides/': [
         {
           text: 'Procédures',
