@@ -91,6 +91,24 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 ### Rate Limiting
 - Authentifié : 60 requêtes/minute
 - Endpoint sensible : adapter selon besoin
+
+### Compatibilité ascendante
+
+| Règle | Application |
+|-------|-------------|
+| Suppression de champ | Interdit sans deprecation préalable |
+| Renommage de champ | Exposer les deux pendant 1 version |
+| Nouveau champ requis | Fournir une valeur par défaut |
+| Changement de type | Breaking → versioning API |
+
+### Documentation Scribe
+
+| Critère | Vérifié |
+|---------|---------|
+| FormRequest utilisé | Oui / Non |
+| Règles de validation complètes | Oui / Non |
+| Doc générable (`php artisan scribe:generate`) | Oui / Non |
+| Exemples de response documentés | Oui / Non |
 ```
 
 ## Andon (STOP)
@@ -111,9 +129,11 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 - [ ] Format request/response documenté
 - [ ] Pagination sur les listes (meta inclus)
 - [ ] Codes d'erreur et messages définis
-- [ ] Validation FormRequest rédigée
+- [ ] Validation FormRequest rédigée (pas de validation inline)
 - [ ] Rate limiting défini
 - [ ] Pas de donnée sensible exposée
+- [ ] Compat ascendante vérifiée (pas de breaking change)
+- [ ] Documentation Scribe générable
 ```
 
 ## Exemple minimal

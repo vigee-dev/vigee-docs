@@ -49,8 +49,8 @@ Planifie le déploiement : migrations en 2 temps, scripts CLI, rollback.
 
 #### Phase 1 : Préparation (avant deploy)
 ```bash
-# Backup base de données
-# Adapter à vos scripts existants
+# Backup base de données (script standard du repo)
+./scripts/backup-db.sh
 ```
 
 #### Phase 2 : Migration DB (si applicable)
@@ -72,19 +72,25 @@ php artisan migrate:status
 
 **Laravel (Hostinger) :**
 ```bash
-# Adapter à vos scripts de déploiement existants
-git pull origin main
-composer install --no-dev --optimize-autoloader
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Utiliser le script standard du repo
+./scripts/deploy-backend.sh
+
+# Contenu attendu du script :
+# git pull origin main
+# composer install --no-dev --optimize-autoloader
+# php artisan migrate --force
+# php artisan config:cache
+# php artisan route:cache
+# php artisan view:cache
 ```
 
 **Next.js (Vercel) :**
 ```bash
-# Déploiement automatique sur push main
-# Ou manuel via CLI Vercel
-vercel --prod
+# Utiliser le script standard du repo
+./scripts/deploy-frontend.sh
+
+# Contenu attendu :
+# vercel --prod
 ```
 
 #### Phase 4 : Vérification post-deploy
@@ -92,11 +98,16 @@ vercel --prod
 # Désactiver maintenance
 php artisan up
 
-# Vérifier logs
-tail -f storage/logs/laravel.log
+# Test smoke (script standard du repo)
+./scripts/smoke.sh
 
-# Test smoke
-curl -I https://api.example.com/health
+# Contenu attendu du script :
+# curl -f https://api.example.com/health || exit 1
+# curl -f https://example.com || exit 1
+# echo "Smoke test passed"
+
+# Vérifier logs si besoin
+tail -f storage/logs/laravel.log
 ```
 
 ### Rollback
@@ -114,10 +125,24 @@ curl -I https://api.example.com/health
 | T1 | Ajouter nouvelle colonne (nullable) |
 | T2 (après migration données) | Supprimer ancienne colonne |
 
+### Scripts standard (convention repo)
+
+| Script | Usage | Requis |
+|--------|-------|--------|
+| `./scripts/backup-db.sh` | Backup DB avant release | Si migration |
+| `./scripts/deploy-backend.sh` | Déploiement Laravel | Toujours |
+| `./scripts/deploy-frontend.sh` | Déploiement Vercel | Si frontend |
+| `./scripts/smoke.sh` | Tests post-deploy | Toujours |
+
+::: tip
+Ces scripts doivent exister dans le repo. Voir [Repository Baseline](/agents/repository-baseline) pour les créer.
+:::
+
 ### Checklist post-deploy
 
 - [ ] Application accessible
 - [ ] Logs sans erreur critique
+- [ ] Smoke test passé (`./scripts/smoke.sh`)
 - [ ] Fonctionnalité testée manuellement
 - [ ] Monitoring OK (si applicable)
 ```

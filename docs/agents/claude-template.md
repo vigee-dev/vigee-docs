@@ -139,6 +139,63 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
 - Toute décision non triviale : ADR court (contexte / options / décision / conséquences / rollback).
 - Toute incertitude significative doit être écrite (risque) plutôt que masquée.
 
+## 15) Plan de continuité (runbook)
+
+Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé** uniquement quand le risque opérationnel augmente.
+
+### Fichier standard
+
+- Source de vérité unique : `/ops/continuity.md` (ou `docs/ops/continuity.md` selon conventions).
+- Une section par capability critique (auth, billing, webhooks, imports, jobs, stockage fichiers, etc.).
+- Éviter la multiplication de fichiers "par feature".
+
+### Triggers (obligatoire si au moins un est vrai)
+
+- Changement DB à risque (migration/backfill/suppression, transformation de données)
+- Dépendance externe critique (paiement, email transactionnel, stockage, signature, webhooks)
+- Process métier non réversible (facturation, signature, droits/roles, clôture/validation)
+- Charge/volume pouvant dégrader la prod (listes/recherche, jobs longs, fichiers)
+- Surface sécurité accrue (auth, permissions, PII)
+- Ajout/modif de cron/queue/jobs ou configuration sensible
+
+### Contenu minimal d'une section
+
+- **What can go wrong** (3 bullets max)
+- **Detection** (symptômes + logs/alertes)
+- **Rollback** (procédure exacte)
+- **Data recovery** (si applicable : backup, re-run, idempotence)
+- **Runbook** (3 actions/commandes max)
+
+## 16) Dependencies & Upgrades
+
+- Audit CVE hebdomadaire (`composer audit`, `pnpm audit`).
+- Upgrade majeur = lecture changelog + matrice de compatibilité obligatoire.
+- Jamais d'upgrade sans tests passants (unit + E2E).
+- Lock files (`composer.lock`, `pnpm-lock.yaml`) toujours versionnés.
+- Rollback = revert des lock files + redeploy.
+
+## 17) Repository Baseline
+
+Chaque repo doit avoir une structure standard :
+
+```
+/
+├── scripts/
+│   ├── deploy-backend.sh
+│   ├── deploy-frontend.sh
+│   ├── backup-db.sh
+│   └── smoke.sh
+├── docs/ops/continuity.md
+├── .editorconfig
+├── .env.example
+├── CLAUDE.md
+└── README.md
+```
+
+- Scripts de déploiement fonctionnels et testés.
+- CI minimale (tests sur PR).
+- Branch protection sur main.
+
 ---
 
 ## Andon (STOP) — Conditions de blocage
@@ -152,6 +209,7 @@ STOP si l'un de ces critères est vrai :
 - [ ] Doc API impossible à générer/mettre à jour (Scribe) pour un endpoint touché
 - [ ] Aucune trace exploitable (logs) pour un flux critique
 - [ ] Aucun test ajouté là où le risque augmente clairement
+- [ ] Trigger de continuité présent mais aucun plan/section ajouté ou mis à jour
 
 ---
 
@@ -159,12 +217,14 @@ STOP si l'un de ces critères est vrai :
 
 | Situation | Agents à exécuter |
 |-----------|-------------------|
+| Nouveau projet | [Repository Baseline](https://docs.vigee.fr/agents/repository-baseline) |
 | Nouvelle feature | [Feature Spec](https://docs.vigee.fr/agents/feature-spec) → [Domain DB](https://docs.vigee.fr/agents/domain-database) → [API Contract](https://docs.vigee.fr/agents/api-contract) |
 | Modification DB | [Domain DB](https://docs.vigee.fr/agents/domain-database) → [Release Plan](https://docs.vigee.fr/agents/release-plan) |
 | Nouvel endpoint | [API Contract](https://docs.vigee.fr/agents/api-contract) → [Security Gate](https://docs.vigee.fr/agents/security-gate) |
 | Données personnelles | [Data Protection](https://docs.vigee.fr/agents/data-protection) |
 | Avant merge | [Quality Gate](https://docs.vigee.fr/agents/quality-gate) → [Codebase Consistency](https://docs.vigee.fr/agents/codebase-consistency) |
 | Mise en prod | [Release Plan](https://docs.vigee.fr/agents/release-plan) → [Observability](https://docs.vigee.fr/agents/observability-gate) |
+| Upgrade dépendances | [Dependencies & Upgrades](https://docs.vigee.fr/agents/dependencies-upgrades) |
 
 ---
 

@@ -35,6 +35,7 @@ export default defineConfig({
         {
           text: 'A. Foundations',
           items: [
+            { text: 'Repository Baseline', link: '/agents/repository-baseline' },
             { text: 'Feature Spec', link: '/agents/feature-spec' },
             { text: 'ADR', link: '/agents/adr' },
             { text: 'Codebase Consistency', link: '/agents/codebase-consistency' }
@@ -67,6 +68,12 @@ export default defineConfig({
           items: [
             { text: 'Release & Migration', link: '/agents/release-plan' },
             { text: 'Observability Gate', link: '/agents/observability-gate' }
+          ]
+        },
+        {
+          text: 'F. Maintenance',
+          items: [
+            { text: 'Dependencies & Upgrades', link: '/agents/dependencies-upgrades' }
           ]
         }
       ],

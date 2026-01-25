@@ -50,6 +50,20 @@ Spécification fonctionnelle condensée en une page. Définit le "quoi" et le "p
 ### Critères d'acceptation
 - [ ] [Critère testable 1]
 - [ ] [Critère testable 2]
+- [ ] [Critère testable 3]
+
+### Cas limites & erreurs attendues
+| Cas | Comportement attendu |
+|-----|----------------------|
+| [Edge case 1] | [Réponse/Message] |
+| [Erreur possible] | [Gestion] |
+
+### Impact data
+| Question | Réponse |
+|----------|---------|
+| Crée/modifie des données ? | Oui / Non |
+| Données personnelles (PII) ? | Oui / Non |
+| Migration DB requise ? | Oui / Non |
 
 ### Dépendances
 - [Module/API/Service requis]
@@ -74,6 +88,8 @@ Spécification fonctionnelle condensée en une page. Définit le "quoi" et le "p
 - [ ] Périmètre explicite : inclus ET exclus
 - [ ] Règles métier listées et numérotées
 - [ ] Critères d'acceptation testables (min. 3)
+- [ ] Cas limites et erreurs identifiés
+- [ ] Impact data évalué (PII, migration)
 - [ ] Dépendances identifiées
 - [ ] Spec validée par le client ou PO
 ```
@@ -108,6 +124,20 @@ Permettre à un utilisateur connecté de télécharger une facture en PDF afin d
 - [ ] Le bouton apparaît sur chaque ligne de facture
 - [ ] Le PDF contient : numéro, date, lignes, total TTC
 - [ ] Un utilisateur ne peut pas télécharger la facture d'un autre
+
+### Cas limites & erreurs attendues
+| Cas | Comportement attendu |
+|-----|----------------------|
+| Facture inexistante | 404 "Facture introuvable" |
+| Facture d'un autre user | 403 "Accès refusé" |
+| Génération PDF échoue | 500 + log erreur + message user |
+
+### Impact data
+| Question | Réponse |
+|----------|---------|
+| Crée/modifie des données ? | Non (lecture seule) |
+| Données personnelles (PII) ? | Oui (données facture) |
+| Migration DB requise ? | Non |
 
 ### Dépendances
 - Package `barryvdh/laravel-dompdf` (déjà installé)
