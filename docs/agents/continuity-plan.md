@@ -63,14 +63,16 @@ Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de 
 1. [Action immédiate : ex. "Mettre en maintenance"]
 2. [Diagnostic : ex. "Vérifier logs : `tail -f storage/logs/laravel.log | grep payment`"]
 3. [Correction : ex. "Relancer le job : `php artisan queue:retry {id}`"]
+
+> **Si > 3 actions nécessaires** : c'est un signal que la feature nécessite un feature flag, circuit breaker ou mode maintenance dédié. Simplifier l'architecture avant de documenter un runbook trop complexe.
 ```
 
 ## Andon (STOP)
 
 ::: danger Conditions bloquantes
 - Trigger présent mais aucune section continuity ajoutée
-- Runbook avec plus de 3 étapes (trop complexe = non utilisable en urgence)
-- Pas de procédure de rollback testée
+- Runbook avec plus de 3 étapes sans feature flag/circuit breaker prévu
+- Pas de procédure de rollback testée (staging, dry-run ou plan documenté)
 - Backup inexistant ou non vérifié pour données critiques
 - Dépendance externe sans fallback ni monitoring
 :::
@@ -82,9 +84,9 @@ Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de 
 - [ ] Section ajoutée/mise à jour dans `/docs/ops/continuity.md`
 - [ ] What can go wrong : 3 risques max, réalistes
 - [ ] Detection : symptômes + logs/alertes identifiés
-- [ ] Rollback : procédure testée (au moins en staging)
+- [ ] Rollback : procédure testée (staging, dry-run, ou plan documenté si staging impossible)
 - [ ] Data recovery : backup vérifié, idempotence confirmée si re-run
-- [ ] Runbook : 3 actions max, exécutables en urgence
+- [ ] Runbook : 3 actions max (si > 3 : prévoir feature flag/circuit breaker)
 ```
 
 ## Exemple minimal
