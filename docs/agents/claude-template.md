@@ -139,6 +139,33 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
 - Toute décision non triviale : ADR court (contexte / options / décision / conséquences / rollback).
 - Toute incertitude significative doit être écrite (risque) plutôt que masquée.
 
+## 15) Plan de continuité (runbook)
+
+Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé** uniquement quand le risque opérationnel augmente.
+
+### Fichier standard
+
+- Source de vérité unique : `/ops/continuity.md` (ou `docs/ops/continuity.md` selon conventions).
+- Une section par capability critique (auth, billing, webhooks, imports, jobs, stockage fichiers, etc.).
+- Éviter la multiplication de fichiers "par feature".
+
+### Triggers (obligatoire si au moins un est vrai)
+
+- Changement DB à risque (migration/backfill/suppression, transformation de données)
+- Dépendance externe critique (paiement, email transactionnel, stockage, signature, webhooks)
+- Process métier non réversible (facturation, signature, droits/roles, clôture/validation)
+- Charge/volume pouvant dégrader la prod (listes/recherche, jobs longs, fichiers)
+- Surface sécurité accrue (auth, permissions, PII)
+- Ajout/modif de cron/queue/jobs ou configuration sensible
+
+### Contenu minimal d'une section
+
+- **What can go wrong** (3 bullets max)
+- **Detection** (symptômes + logs/alertes)
+- **Rollback** (procédure exacte)
+- **Data recovery** (si applicable : backup, re-run, idempotence)
+- **Runbook** (3 actions/commandes max)
+
 ---
 
 ## Andon (STOP) — Conditions de blocage
@@ -152,6 +179,7 @@ STOP si l'un de ces critères est vrai :
 - [ ] Doc API impossible à générer/mettre à jour (Scribe) pour un endpoint touché
 - [ ] Aucune trace exploitable (logs) pour un flux critique
 - [ ] Aucun test ajouté là où le risque augmente clairement
+- [ ] Trigger de continuité présent mais aucun plan/section ajouté ou mis à jour
 
 ---
 
