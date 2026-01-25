@@ -166,6 +166,36 @@ Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé**
 - **Data recovery** (si applicable : backup, re-run, idempotence)
 - **Runbook** (3 actions/commandes max)
 
+## 16) Dependencies & Upgrades
+
+- Audit CVE hebdomadaire (`composer audit`, `pnpm audit`).
+- Upgrade majeur = lecture changelog + matrice de compatibilité obligatoire.
+- Jamais d'upgrade sans tests passants (unit + E2E).
+- Lock files (`composer.lock`, `pnpm-lock.yaml`) toujours versionnés.
+- Rollback = revert des lock files + redeploy.
+
+## 17) Repository Baseline
+
+Chaque repo doit avoir une structure standard :
+
+```
+/
+├── scripts/
+│   ├── deploy-backend.sh
+│   ├── deploy-frontend.sh
+│   ├── backup-db.sh
+│   └── smoke.sh
+├── docs/ops/continuity.md
+├── .editorconfig
+├── .env.example
+├── CLAUDE.md
+└── README.md
+```
+
+- Scripts de déploiement fonctionnels et testés.
+- CI minimale (tests sur PR).
+- Branch protection sur main.
+
 ---
 
 ## Andon (STOP) — Conditions de blocage
@@ -187,12 +217,14 @@ STOP si l'un de ces critères est vrai :
 
 | Situation | Agents à exécuter |
 |-----------|-------------------|
+| Nouveau projet | [Repository Baseline](https://docs.vigee.fr/agents/repository-baseline) |
 | Nouvelle feature | [Feature Spec](https://docs.vigee.fr/agents/feature-spec) → [Domain DB](https://docs.vigee.fr/agents/domain-database) → [API Contract](https://docs.vigee.fr/agents/api-contract) |
 | Modification DB | [Domain DB](https://docs.vigee.fr/agents/domain-database) → [Release Plan](https://docs.vigee.fr/agents/release-plan) |
 | Nouvel endpoint | [API Contract](https://docs.vigee.fr/agents/api-contract) → [Security Gate](https://docs.vigee.fr/agents/security-gate) |
 | Données personnelles | [Data Protection](https://docs.vigee.fr/agents/data-protection) |
 | Avant merge | [Quality Gate](https://docs.vigee.fr/agents/quality-gate) → [Codebase Consistency](https://docs.vigee.fr/agents/codebase-consistency) |
 | Mise en prod | [Release Plan](https://docs.vigee.fr/agents/release-plan) → [Observability](https://docs.vigee.fr/agents/observability-gate) |
+| Upgrade dépendances | [Dependencies & Upgrades](https://docs.vigee.fr/agents/dependencies-upgrades) |
 
 ---
 

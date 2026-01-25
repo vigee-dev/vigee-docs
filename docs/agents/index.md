@@ -21,6 +21,7 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 
 | Type de changement | Agents requis |
 |--------------------|---------------|
+| Nouveau projet | Baseline → Spec |
 | Nouvelle feature | Spec → ADR → Domain → API → Frontend → Security → Quality → Release |
 | Bug fix | Consistency → Quality → Release |
 | Refactoring | ADR → Consistency → Quality |
@@ -28,6 +29,7 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 | Ajout endpoint API | API → Security → Quality |
 | Nouvelle page Next.js | Frontend → Quality |
 | Mise en production | Release → Observability |
+| Upgrade dépendances | Dependencies → Quality → Release |
 
 ## Liste des agents
 
@@ -35,6 +37,7 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 
 | Agent | Description |
 |-------|-------------|
+| [Repository Baseline](/agents/repository-baseline) | Structure et standards de repo |
 | [Feature Spec](/agents/feature-spec) | Spécification fonctionnelle 1-page |
 | [ADR](/agents/adr) | Architecture Decision Record |
 | [Codebase Consistency](/agents/codebase-consistency) | Vérification du standard work |
@@ -67,3 +70,9 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 |-------|-------------|
 | [Release & Migration Plan](/agents/release-plan) | Déploiement CLI, migrations, rollback |
 | [Observability Gate](/agents/observability-gate) | Logs structurés, corrélation, alertes |
+
+### F. Maintenance
+
+| Agent | Description |
+|-------|-------------|
+| [Dependencies & Upgrades](/agents/dependencies-upgrades) | Audit CVE, upgrades, compatibilité |

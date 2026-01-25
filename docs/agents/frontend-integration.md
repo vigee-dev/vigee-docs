@@ -96,6 +96,30 @@ if (!res.ok) {
 | 401 | Clear token, redirect /login |
 | 403 | Toast "Action non autorisée" |
 | 500 | Toast "Erreur serveur" + log |
+
+### Conventions Next.js (Vigee)
+
+#### Cache strategy
+| Donnée | Stratégie | Raison |
+|--------|-----------|--------|
+| Listes peu changeantes | `revalidate: 60` | Stale-while-revalidate |
+| Données user-specific | `no-store` | Toujours fraîches |
+| Config/référentiels | `revalidate: 3600` | Quasi-statique |
+| Après mutation | `revalidatePath()` | Invalidation immédiate |
+
+#### Gestion d'erreurs
+| Niveau | Mécanisme |
+|--------|-----------|
+| Page | `error.tsx` boundary |
+| Composant | try/catch + état local |
+| Global | Toast + logging client |
+
+#### Formulaires
+| Pattern | Usage |
+|---------|-------|
+| Optimistic UI | Actions réversibles (toggle, like) |
+| Standard submit | Création/modification critique |
+| Idempotence | Toujours (éviter double submit) |
 ```
 
 ## Andon (STOP)
