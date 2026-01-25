@@ -84,7 +84,11 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
 - Validation systématique via FormRequest Laravel (pas de validation inline).
 - Erreurs API standardisées (structure unique, codes cohérents).
 - AuthN/AuthZ explicites : aucune route "implicitement protégée".
-- Pas de breaking change d'API sans ADR et stratégie de compat ascendante.
+- **Compat ascendante obligatoire** :
+  - Suppression de champ : interdit sans dépréciation (1 version min).
+  - Renommage : exposer ancien + nouveau pendant 1 version.
+  - Nouveau champ requis : fournir une valeur par défaut.
+  - Changement de type : breaking → versioning API (`/v2/`).
 
 ## 7) Scribe (documentation API)
 
@@ -215,16 +219,20 @@ STOP si l'un de ces critères est vrai :
 
 ## Gates obligatoires (Vigee Agents)
 
+Les agents entre parenthèses sont conditionnels.
+
 | Situation | Agents à exécuter |
 |-----------|-------------------|
 | Nouveau projet | [Repository Baseline](https://docs.vigee.fr/agents/repository-baseline) |
-| Nouvelle feature | [Feature Spec](https://docs.vigee.fr/agents/feature-spec) → [Domain DB](https://docs.vigee.fr/agents/domain-database) → [API Contract](https://docs.vigee.fr/agents/api-contract) |
-| Modification DB | [Domain DB](https://docs.vigee.fr/agents/domain-database) → [Release Plan](https://docs.vigee.fr/agents/release-plan) |
+| Nouvelle feature | [Feature Spec](https://docs.vigee.fr/agents/feature-spec) → ([ADR](https://docs.vigee.fr/agents/adr)) → [API Contract](https://docs.vigee.fr/agents/api-contract) → ([Continuity](https://docs.vigee.fr/agents/continuity-plan)) |
+| Modification DB | [Domain DB](https://docs.vigee.fr/agents/domain-database) → [Release Plan](https://docs.vigee.fr/agents/release-plan) → ([Continuity](https://docs.vigee.fr/agents/continuity-plan)) |
 | Nouvel endpoint | [API Contract](https://docs.vigee.fr/agents/api-contract) → [Security Gate](https://docs.vigee.fr/agents/security-gate) |
 | Données personnelles | [Data Protection](https://docs.vigee.fr/agents/data-protection) |
 | Avant merge | [Quality Gate](https://docs.vigee.fr/agents/quality-gate) → [Codebase Consistency](https://docs.vigee.fr/agents/codebase-consistency) |
-| Mise en prod | [Release Plan](https://docs.vigee.fr/agents/release-plan) → [Observability](https://docs.vigee.fr/agents/observability-gate) |
+| Mise en prod | [Release Plan](https://docs.vigee.fr/agents/release-plan) → ([Observability](https://docs.vigee.fr/agents/observability-gate)) → ([Continuity](https://docs.vigee.fr/agents/continuity-plan)) |
 | Upgrade dépendances | [Dependencies & Upgrades](https://docs.vigee.fr/agents/dependencies-upgrades) |
+
+**Légende** : `(Agent)` = si décision non triviale (ADR), si flux critique (Observability), si trigger présent (Continuity).
 
 ---
 

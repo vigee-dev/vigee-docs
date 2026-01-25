@@ -19,17 +19,22 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 
 ## Matrice : Type de changement → Agents
 
+Les agents entre parenthèses sont conditionnels selon le contexte.
+
 | Type de changement | Agents requis |
 |--------------------|---------------|
 | Nouveau projet | Baseline → Spec |
-| Nouvelle feature | Spec → ADR → Domain → API → Frontend → Security → Quality → Release |
-| Bug fix | Consistency → Quality → Release |
-| Refactoring | ADR → Consistency → Quality |
-| Migration DB | Domain → Release → Observability |
+| Nouvelle feature | Spec → (ADR) → Domain → API → Frontend → Security → Quality → Release → (Observability) → (Continuity) |
+| Bug fix | Consistency → Quality → Release → (Observability si récurrent) |
+| Refactoring | (ADR) → Consistency → Quality |
+| Migration DB | Domain → Release → Observability → (Continuity si risque) |
 | Ajout endpoint API | API → Security → Quality |
 | Nouvelle page Next.js | Frontend → Quality |
-| Mise en production | Release → Observability |
+| Mise en production | Release → Observability → (Continuity si trigger) |
 | Upgrade dépendances | Dependencies → Quality → Release |
+
+**Légende :**
+- `(Agent)` = conditionnel : ADR si décision non triviale, Observability si flux critique/job/webhook, Continuity si trigger présent
 
 ## Liste des agents
 
@@ -70,6 +75,7 @@ Les **Agents** sont des checklists structurées qui standardisent chaque étape 
 |-------|-------------|
 | [Release & Migration Plan](/agents/release-plan) | Déploiement CLI, migrations, rollback |
 | [Observability Gate](/agents/observability-gate) | Logs structurés, corrélation, alertes |
+| [Continuity Plan](/agents/continuity-plan) | Runbook : quoi faire quand ça casse |
 
 ### F. Maintenance
 

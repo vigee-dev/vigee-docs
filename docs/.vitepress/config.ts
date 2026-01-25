@@ -67,7 +67,8 @@ export default defineConfig({
           text: 'E. Delivery',
           items: [
             { text: 'Release & Migration', link: '/agents/release-plan' },
-            { text: 'Observability Gate', link: '/agents/observability-gate' }
+            { text: 'Observability Gate', link: '/agents/observability-gate' },
+            { text: 'Continuity Plan', link: '/agents/continuity-plan' }
           ]
         },
         {
