@@ -1,14 +1,14 @@
 # Agents
 
-Les **Agents** sont des checklists structurées qui standardisent chaque étape du développement. Inspirés du **Toyota Production System**, ils garantissent la qualité à la source et permettent un "stop-the-line" (andon) dès qu'un critère n'est pas rempli.
+Les **Agents** sont des checklists structurées qui standardisent chaque étape du développement. Ils garantissent la qualité à la source et permettent un "stop-the-line" (andon) dès qu'un critère n'est pas rempli.
 
 ## Pourquoi ces agents ?
 
-| Principe Toyota | Application |
-|-----------------|-------------|
+| Principe | Application |
+|----------|-------------|
 | **Standard Work** | Chaque agent impose un format de sortie reproductible |
 | **Quality Gate** | Pas d'implémentation sans validation des prérequis |
-| **Andon** | Conditions STOP explicites pour arrêter avant de propager un défaut |
+| **Andon (STOP)** | Conditions bloquantes explicites pour arrêter avant de propager un défaut |
 
 ## Utilisation en développement solo
 
