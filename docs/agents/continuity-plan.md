@@ -30,7 +30,12 @@ Obligatoire si **au moins un trigger** est vrai :
 
 ## Sortie attendue
 
-Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de vérité unique).
+Le repo applicatif **DOIT** contenir `docs/ops/continuity.md` (source de vérité unique, versionnée).
+
+- Si absent, il doit être créé à l'initialisation du projet avec un template minimal.
+- Le projet **DOIT** exposer une page admin `/admin/continuity` qui affiche ce Markdown.
+
+Ajouter ou mettre à jour une section dans `docs/ops/continuity.md` :
 
 ```markdown
 ## [Nom de la capability]
@@ -67,10 +72,33 @@ Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de 
 > **Si > 3 actions nécessaires** : c'est un signal que la feature nécessite un feature flag, circuit breaker ou mode maintenance dédié. Simplifier l'architecture avant de documenter un runbook trop complexe.
 ```
 
+### Page admin obligatoire : /admin/continuity
+
+Chaque projet **DOIT** exposer cette page :
+
+| Critère | Exigence |
+|---------|----------|
+| URL | `/admin/continuity` (existe dans tous les projets) |
+| Accès | Admin-only (rediriger vers login ou 403/404 si non admin, **jamais public**) |
+| Source | Afficher `docs/ops/continuity.md` depuis le filesystem du build (pas de duplication) |
+| Rendu | Texte brut accepté ; si rendu Markdown, **interdire tout HTML raw** (pas de `rehype-raw`) |
+| Auto-update | Tout changement dans `docs/ops/continuity.md` visible après commit + redeploy |
+
+::: warning Sécurité du runbook
+- **Aucun secret** dans `docs/ops/continuity.md` (pas de tokens, clés API, mots de passe)
+- Le fichier est versionné et potentiellement visible par tous les contributeurs du repo
+- Utiliser des références (`voir .env`, `Dashboard Stripe`) plutôt que des valeurs
+:::
+
 ## Andon (STOP)
 
 ::: danger Conditions bloquantes
-- Trigger présent mais aucune section continuity ajoutée
+- `docs/ops/continuity.md` n'existe pas (ou template minimal absent)
+- `/admin/continuity` n'existe pas dans le projet
+- `/admin/continuity` n'est pas protégé admin (accessible publiquement)
+- Runbook contient des secrets (tokens, clés, mots de passe en clair)
+- Rendu Markdown permet HTML brut (`rehype-raw` activé)
+- Trigger présent mais aucune section continuity ajoutée/mise à jour
 - Runbook avec plus de 3 étapes sans feature flag/circuit breaker prévu
 - Pas de procédure de rollback testée (staging, dry-run ou plan documenté)
 - Backup inexistant ou non vérifié pour données critiques
@@ -80,51 +108,61 @@ Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de 
 ## Checklist Done
 
 ```markdown
+- [ ] `docs/ops/continuity.md` existe (créé si nécessaire) et respecte le template
+- [ ] `/admin/continuity` existe et est admin-only
+- [ ] `/admin/continuity` affiche le contenu du Markdown (pas de duplication)
 - [ ] Trigger identifié et documenté
-- [ ] Section ajoutée/mise à jour dans `/docs/ops/continuity.md`
+- [ ] Section capability ajoutée/mise à jour dans `docs/ops/continuity.md`
 - [ ] What can go wrong : 3 risques max, réalistes
 - [ ] Detection : symptômes + logs/alertes identifiés
 - [ ] Rollback : procédure testée (staging, dry-run, ou plan documenté si staging impossible)
 - [ ] Data recovery : backup vérifié, idempotence confirmée si re-run
 - [ ] Runbook : 3 actions max (si > 3 : prévoir feature flag/circuit breaker)
+- [ ] Aucun secret présent ; rendu safe (pas de HTML raw)
 ```
 
 ## Exemple minimal
 
+Contenu de `docs/ops/continuity.md` pour la capability "Webhooks" :
+
 ```markdown
-## Paiements Stripe
+# Plan de continuité
+
+## Webhooks (Stripe, Resend)
 
 ### What can go wrong
 - Webhook Stripe échoue → paiement reçu mais non crédité en DB
 - Double webhook → double crédit (si pas d'idempotence)
-- Clé API expirée → tous les paiements échouent
+- Endpoint webhook down → événements perdus pendant l'indisponibilité
 
 ### Detection
 | Symptôme | Log/Alerte |
 |----------|------------|
-| Paiement client non visible | Absence `payment.succeeded` dans logs |
-| Double crédit | 2 entrées même `stripe_payment_id` |
-| Tous paiements KO | `Stripe API error 401` dans logs |
+| Paiement client non visible | Absence `webhook.received` dans logs |
+| Double crédit | 2 entrées même `event_id` |
+| Webhook timeout | `504` dans logs + alerte provider |
 
 ### Rollback
 | Situation | Procédure |
 |-----------|-----------|
-| Webhook raté | Replay via dashboard Stripe |
-| Double crédit | Reverser manuellement + fix idempotence |
-| Clé expirée | Rotation clé dans `.env` + redeploy |
+| Webhook raté | Replay via dashboard provider |
+| Double traitement | Reverser manuellement + fix idempotence |
+| Endpoint cassé | Rollback code + redeploy |
 
 ### Data recovery
 - Backup : quotidien, 30 jours, S3
-- Re-run : Oui, webhook idempotent sur `stripe_payment_id`
+- Re-run : Oui, webhook idempotent sur `event_id`
 - Données perdues : Aucune si replay < 30 jours
 
 ### Runbook
-1. Vérifier statut Stripe : `curl https://status.stripe.com/api/v2/status.json`
-2. Checker logs : `grep "stripe" storage/logs/laravel.log | tail -50`
-3. Replay webhook : Dashboard Stripe → Webhooks → Retry
+1. Vérifier statut provider : Dashboard Stripe/Resend → Events
+2. Checker logs : `grep "webhook" storage/logs/laravel.log | tail -50`
+3. Replay événement : Dashboard provider → Webhooks → Retry
 ```
 
-## Organisation du fichier continuity.md
+**La page `/admin/continuity` affiche ce fichier tel quel.**
+
+## Organisation du fichier docs/ops/continuity.md
 
 ```markdown
 # Plan de continuité
@@ -142,6 +180,9 @@ Ajouter ou mettre à jour une section dans `/docs/ops/continuity.md` (source de 
 [...]
 
 ## Imports / Exports
+[...]
+
+## Webhooks
 [...]
 
 ## Stockage fichiers (S3)
