@@ -51,6 +51,11 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 | Invoice | view | Owner only (Policy) |
 | Invoice | delete | Owner + Admin |
 
+**Standard Laravel :**
+- Policy obligatoire pour chaque ressource protégée (`Policies/InvoicePolicy.php`)
+- FormRequest `authorize()` doit déléguer à la Policy ou être cohérent avec elle
+- Controller : `$this->authorize('view', $invoice)` ou via FormRequest
+
 ### Abus métier
 
 | Scénario d'abus | Mitigation |
@@ -73,6 +78,8 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 - Upload de fichier sans validation de type
 - Secret/token hardcodé dans le code
 - Pas de Policy Laravel sur ressource protégée
+- FormRequest `authorize()` incohérent avec la Policy
+- AuthZ implicite (pas de `$this->authorize()` ni Policy check)
 - CORS permissif (`*`) en production
 :::
 
@@ -81,6 +88,8 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 ```markdown
 - [ ] Tous les endpoints protégés par middleware auth
 - [ ] Policies Laravel sur chaque ressource sensible
+- [ ] Policy + FormRequest authorize() cohérents
+- [ ] Test minimal d'autorisation (accès refusé si non owner)
 - [ ] Validation FormRequest sur tous les inputs
 - [ ] Pas de SQL brut avec variables utilisateur
 - [ ] Upload : validation MIME + taille + extension

@@ -42,6 +42,28 @@ Vérifie que le code respecte les conventions établies du projet. Standard Work
 | Patterns existants | OK / KO | [Commentaire si KO] |
 | Formatage | OK / KO | [Commentaire si KO] |
 | Imports/Use | OK / KO | [Commentaire si KO] |
+| Laravel API Stack | OK / KO | [Commentaire si KO] |
+
+### Arborescence Laravel (standard)
+
+```
+app/
+├── Http/
+│   ├── Controllers/     # Orchestration uniquement
+│   ├── Requests/        # FormRequest (validation + authorize)
+│   └── Resources/       # JsonResource (sérialisation)
+├── Models/              # Eloquent models
+├── Policies/            # AuthZ par ressource
+├── Services/            # Logique métier (ou Actions/)
+└── ...
+```
+
+**Conventions de nommage :**
+- Controller : `{Entity}Controller` ou `{Entity}{Action}Controller`
+- FormRequest : `Store{Entity}Request`, `Update{Entity}Request`
+- Policy : `{Entity}Policy`
+- Resource : `{Entity}Resource`, `{Entity}Collection`
+- Service : `{Entity}Service` ou `{Action}{Entity}Action`
 
 ### Actions correctives
 - [ ] [Action 1 si KO]
@@ -59,6 +81,10 @@ Vérifie que le code respecte les conventions établies du projet. Standard Work
 - Fichier placé dans le mauvais dossier
 - Code dupliqué d'un module existant
 - Import/namespace incorrect
+- Controller avec logique métier (doit être dans Service)
+- Validation inline (doit être dans FormRequest)
+- `return $model` brut (doit utiliser JsonResource)
+- AuthZ dans Controller sans Policy
 :::
 
 ## Checklist Done
@@ -71,6 +97,7 @@ Vérifie que le code respecte les conventions établies du projet. Standard Work
 - [ ] Pas de code dupliqué
 - [ ] Imports ordonnés et sans unused
 - [ ] Types/annotations cohérents avec le reste du projet
+- [ ] Laravel API Stack respectée (Controller/Request/Policy/Resource/Service)
 ```
 
 ## Exemple minimal
