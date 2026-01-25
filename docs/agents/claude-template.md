@@ -90,7 +90,26 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
   - Nouveau champ requis : fournir une valeur par défaut.
   - Changement de type : breaking → versioning API (`/v2/`).
 
-## 7) Scribe (documentation API)
+## 7) Laravel API Standard (Controller / Request / Policy / Resource / Service)
+
+Stack obligatoire pour tout endpoint non trivial :
+
+| Composant | Rôle | Emplacement |
+|-----------|------|-------------|
+| **Controller** | Orchestration uniquement (auth + appel service) | `Http/Controllers/` |
+| **FormRequest** | Validation + `authorize()` | `Http/Requests/` |
+| **Policy** | AuthZ par ressource (CRUD) | `Policies/` |
+| **JsonResource** | Sérialisation réponse (contrat stable) | `Http/Resources/` |
+| **Service/Action** | Logique métier (pur si possible) | `Services/` ou `Actions/` |
+
+**Règles :**
+- Controller : jamais de logique métier, jamais de `return $model` brut.
+- FormRequest : `authorize()` délègue à Policy ou retourne true si auth gérée ailleurs.
+- Policy : obligatoire dès qu'on touche une ressource protégée (read/write).
+- JsonResource : obligatoire pour toute réponse JSON (pas de `->toArray()` implicite).
+- Service : IO (DB, HTTP, files) encapsulée, effets de bord isolés.
+
+## 8) Scribe (documentation API)
 
 - Source principale des schémas : **FormRequest** (règles de validation).
 - Interdiction de recopier les schémas JSON si Scribe peut les déduire des règles.
@@ -98,7 +117,7 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
 - Toute route ajoutée ou modifiée doit rester documentable.
 - "Done" inclut la génération/maj de la doc Scribe.
 
-## 8) Sécurité (OWASP)
+## 9) Sécurité (OWASP)
 
 - Principe du moindre privilège.
 - Policies/Gates obligatoires sur chaque ressource sensible.
@@ -106,44 +125,44 @@ Si ce n'est pas **testable**, **loggable** et **rollbackable**, ce n'est pas "do
 - Uploads : whitelist type/size, stockage isolé.
 - Secrets : jamais dans le repo. `.env` non commité. Rotation possible.
 
-## 9) Protection des données (RGPD)
+## 10) Protection des données (RGPD)
 
 - Minimisation : collecter uniquement ce qui est nécessaire.
 - Rétention : durée explicite (ou politique claire).
 - Export/suppression : prévoir un chemin si données personnelles significatives.
 - Logs : ne jamais logger de secrets ou données sensibles en clair.
 
-## 10) Observabilité
+## 11) Observabilité
 
 - Logs structurés avec corrélation (requestId/correlationId si possible).
 - Erreurs attendues ≠ silence : réponse propre + log utile.
 - Audit log minimal pour actions sensibles (rôles, export, suppression, auth).
 
-## 11) Tests
+## 12) Tests
 
 - Backend : tests sur règles métier critiques + permissions (PHPUnit/Pest).
 - Frontend : Playwright sur 2–3 parcours critiques (happy path + auth/permissions).
 - Chaque bug corrigé doit ajouter un test de non-régression quand pertinent.
 - Pas de tests cosmétiques : chaque test protège un risque réel.
 
-## 12) Qualité de code
+## 13) Qualité de code
 
 - Nommage précis : éviter `data`, `info`, `item`, `helper`.
 - Pas d'optimisation prématurée sauf contrainte identifiée.
 - Refactor uniquement si gain clair, et protégé par des tests.
 
-## 13) Déploiement
+## 14) Déploiement
 
 - Déploiement CLI documenté et reproductible.
 - Pré-check avant release : env, migrations, caches, queue/cron, smoke test.
 - Rollback défini pour toute release non triviale.
 
-## 14) Discipline de décision (ADR)
+## 15) Discipline de décision (ADR)
 
 - Toute décision non triviale : ADR court (contexte / options / décision / conséquences / rollback).
 - Toute incertitude significative doit être écrite (risque) plutôt que masquée.
 
-## 15) Plan de continuité (runbook)
+## 16) Plan de continuité (runbook)
 
 Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé** uniquement quand le risque opérationnel augmente.
 
@@ -170,7 +189,7 @@ Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé**
 - **Data recovery** (si applicable : backup, re-run, idempotence)
 - **Runbook** (3 actions/commandes max)
 
-## 16) Dependencies & Upgrades
+## 17) Dependencies & Upgrades
 
 - Audit CVE hebdomadaire (`composer audit`, `pnpm audit`).
 - Upgrade majeur = lecture changelog + matrice de compatibilité obligatoire.
@@ -178,7 +197,7 @@ Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé**
 - Lock files (`composer.lock`, `pnpm-lock.yaml`) toujours versionnés.
 - Rollback = revert des lock files + redeploy.
 
-## 17) Repository Baseline
+## 18) Repository Baseline
 
 Chaque repo doit avoir une structure standard :
 
@@ -214,6 +233,7 @@ STOP si l'un de ces critères est vrai :
 - [ ] Aucune trace exploitable (logs) pour un flux critique
 - [ ] Aucun test ajouté là où le risque augmente clairement
 - [ ] Trigger de continuité présent mais aucun plan/section ajouté ou mis à jour
+- [ ] Endpoint non trivial sans stack complète : FormRequest + Policy + JsonResource + Service
 
 ---
 

@@ -109,6 +109,18 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 | Règles de validation complètes | Oui / Non |
 | Doc générable (`php artisan scribe:generate`) | Oui / Non |
 | Exemples de response documentés | Oui / Non |
+
+### Implémentation Laravel (standard)
+
+| Composant | Fichier | Status |
+|-----------|---------|--------|
+| Controller | `InvoiceController.php` | Orchestration only |
+| FormRequest | `StoreInvoiceRequest.php` | Validation + authorize |
+| Policy | `InvoicePolicy.php` | view/create/update/delete |
+| JsonResource | `InvoiceResource.php` | Contrat de réponse |
+| Service | `InvoiceService.php` | Logique métier |
+
+> Voir [Template CLAUDE.md](/agents/claude-template) section 7 pour le standard complet.
 ```
 
 ## Andon (STOP)
@@ -119,6 +131,9 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 - Réponse non paginée sur collection potentiellement grande
 - Pas de gestion d'erreur 404/403 explicite
 - Exposition de données sensibles (password, tokens)
+- Implémentation prévue sans FormRequest (validation inline)
+- Implémentation prévue sans Policy (authZ implicite)
+- Implémentation prévue avec `return $model` brut (sans JsonResource)
 :::
 
 ## Checklist Done
@@ -130,6 +145,8 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 - [ ] Pagination sur les listes (meta inclus)
 - [ ] Codes d'erreur et messages définis
 - [ ] Validation FormRequest rédigée (pas de validation inline)
+- [ ] Policy définie pour chaque ressource protégée
+- [ ] JsonResource définie pour chaque réponse
 - [ ] Rate limiting défini
 - [ ] Pas de donnée sensible exposée
 - [ ] Compat ascendante vérifiée (pas de breaking change)
