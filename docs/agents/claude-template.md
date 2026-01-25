@@ -168,9 +168,10 @@ Le plan de continuité n'est pas créé "pour faire sérieux". Il est **exigé**
 
 ### Fichier standard
 
-- Source de vérité unique : `/ops/continuity.md` (ou `docs/ops/continuity.md` selon conventions).
+- Source de vérité unique : `docs/ops/continuity.md` (chemin imposé, versionné dans le repo).
 - Une section par capability critique (auth, billing, webhooks, imports, jobs, stockage fichiers, etc.).
 - Éviter la multiplication de fichiers "par feature".
+- Page `/admin/continuity` obligatoire : affiche le fichier Markdown (admin-only, pas de HTML raw).
 
 ### Triggers (obligatoire si au moins un est vrai)
 
