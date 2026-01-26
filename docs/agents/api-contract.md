@@ -121,6 +121,59 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 | Service | `InvoiceService.php` | Logique métier |
 
 > Voir [Template CLAUDE.md](/agents/claude-template) section 7 pour le standard complet.
+
+### Exposition des permissions utilisateur
+
+L'API **DOIT** exposer les permissions de l'utilisateur connecté pour que le frontend puisse adapter l'UI.
+
+**Endpoint recommandé : `GET /api/me`**
+
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "can": {
+    "invoices.view": true,
+    "invoices.create": true,
+    "invoices.update": true,
+    "invoices.delete": false,
+    "users.manage": false
+  }
+}
+```
+
+**Implémentation Laravel :**
+
+```php
+// UserResource.php
+public function toArray($request): array
+{
+    return [
+        'data' => [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+        ],
+        'can' => [
+            'invoices.view' => $request->user()->can('viewAny', Invoice::class),
+            'invoices.create' => $request->user()->can('create', Invoice::class),
+            'invoices.update' => $request->user()->can('update', $this->resource),
+            'invoices.delete' => $request->user()->can('delete', $this->resource),
+            'users.manage' => $request->user()->can('viewAny', User::class),
+        ],
+    ];
+}
+```
+
+| Règle | Explication |
+|-------|-------------|
+| Permissions = Policies | Les `can` reflètent exactement les Policies Laravel |
+| Nommage cohérent | `resource.action` (ex: `invoices.create`) |
+| Pas de rôles bruts | Ne pas exposer `role: "admin"` mais les abilities réelles |
+| Frontend consomme | Le frontend utilise `can.invoices.create` pour afficher/masquer |
 ```
 
 ## Andon (STOP)
@@ -134,6 +187,8 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 - Implémentation prévue sans FormRequest (validation inline)
 - Implémentation prévue sans Policy (authZ implicite)
 - Implémentation prévue avec `return $model` brut (sans JsonResource)
+- `/api/me` n'expose pas les permissions utilisateur (ou équivalent)
+- Exposition des rôles bruts (`role: "admin"`) au lieu des abilities
 :::
 
 ## Checklist Done
@@ -151,6 +206,8 @@ Définit le contrat d'API : endpoints, authentification, format des erreurs, pag
 - [ ] Pas de donnée sensible exposée
 - [ ] Compat ascendante vérifiée (pas de breaking change)
 - [ ] Documentation Scribe générable
+- [ ] `/api/me` expose les permissions (`can`) basées sur les Policies
+- [ ] Pas de rôle brut exposé (abilities uniquement)
 ```
 
 ## Exemple minimal
