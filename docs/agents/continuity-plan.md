@@ -84,6 +84,44 @@ Chaque projet **DOIT** exposer cette page :
 | Rendu | Texte brut accepté ; si rendu Markdown, **interdire tout HTML raw** (pas de `rehype-raw`) |
 | Auto-update | Tout changement dans `docs/ops/continuity.md` visible après commit + redeploy |
 
+### Contenu obligatoire de la page /admin/continuity
+
+La page doit afficher :
+
+1. **En-tête** : Titre "Plan de continuité" + date de dernière mise à jour (commit date)
+2. **Contact support** : Coordonnées de l'équipe de développement
+3. **Contenu** : Le fichier `docs/ops/continuity.md` rendu
+
+**Bloc contact obligatoire en haut de page :**
+
+```markdown
+## Contact support
+
+| Urgence | Contact | Délai réponse |
+|---------|---------|---------------|
+| Critique (prod down) | dev@vigee.fr | < 2h (heures ouvrées) |
+| Haute (feature KO) | dev@vigee.fr | < 4h (heures ouvrées) |
+| Standard | dev@vigee.fr | < 24h |
+
+> En dehors des heures ouvrées : laisser un message, traité dès le lendemain matin.
+```
+
+### Escalade et responsabilités
+
+| Niveau | Qui | Action |
+|--------|-----|--------|
+| N1 - Détection | Équipe client / Monitoring | Identifier le symptôme, consulter `/admin/continuity` |
+| N2 - Diagnostic | Vigee (dev@vigee.fr) | Appliquer le runbook, identifier la cause |
+| N3 - Résolution | Vigee | Fix + déploiement + post-mortem si critique |
+
+### Revue périodique
+
+| Fréquence | Action |
+|-----------|--------|
+| À chaque release majeure | Vérifier que les runbooks sont à jour |
+| Trimestriel | Audit des sections : supprimer l'obsolète, ajouter le nouveau |
+| Après incident | Mise à jour immédiate du runbook concerné |
+
 ::: warning Sécurité du runbook
 - **Aucun secret** dans `docs/ops/continuity.md` (pas de tokens, clés API, mots de passe)
 - Le fichier est versionné et potentiellement visible par tous les contributeurs du repo
@@ -94,6 +132,7 @@ Chaque projet **DOIT** exposer cette page :
 
 ::: danger Conditions bloquantes
 - `docs/ops/continuity.md` n'existe pas (ou template minimal absent)
+- Bloc "Contact support" absent du fichier (pas de coordonnées Vigee)
 - `/admin/continuity` n'existe pas dans le projet
 - `/admin/continuity` n'est pas protégé admin (accessible publiquement)
 - Runbook contient des secrets (tokens, clés, mots de passe en clair)
@@ -109,6 +148,7 @@ Chaque projet **DOIT** exposer cette page :
 
 ```markdown
 - [ ] `docs/ops/continuity.md` existe (créé si nécessaire) et respecte le template
+- [ ] Bloc "Contact support" présent en haut du fichier (dev@vigee.fr)
 - [ ] `/admin/continuity` existe et est admin-only
 - [ ] `/admin/continuity` affiche le contenu du Markdown (pas de duplication)
 - [ ] Trigger identifié et documenté
@@ -167,6 +207,18 @@ Contenu de `docs/ops/continuity.md` pour la capability "Webhooks" :
 ```markdown
 # Plan de continuité
 
+> Dernière mise à jour : [date du dernier commit]
+
+## Contact support
+
+| Urgence | Contact | Délai réponse |
+|---------|---------|---------------|
+| Critique (prod down) | dev@vigee.fr | < 2h (heures ouvrées) |
+| Haute (feature KO) | dev@vigee.fr | < 4h (heures ouvrées) |
+| Standard | dev@vigee.fr | < 24h |
+
+---
+
 ## Auth & Sessions
 [...]
 
@@ -190,5 +242,5 @@ Contenu de `docs/ops/continuity.md` pour la capability "Webhooks" :
 ```
 
 ::: tip
-Une section par capability critique. Pas de fichier par feature. Garder lean.
+Une section par capability critique. Pas de fichier par feature. Garder lean. Le bloc contact en haut garantit que l'équipe cliente sait qui joindre en cas d'incident.
 :::
