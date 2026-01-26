@@ -56,6 +56,29 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 - FormRequest `authorize()` doit déléguer à la Policy ou être cohérent avec elle
 - Controller : `$this->authorize('view', $invoice)` ou via FormRequest
 
+### Permissions frontend = backend
+
+Le frontend **ne décide jamais** des autorisations : il reflète les permissions du backend.
+
+| Règle | Explication |
+|-------|-------------|
+| Backend = source de vérité | Toutes les permissions sont définies et vérifiées côté serveur |
+| Frontend = miroir | Le frontend affiche/masque les éléments selon les permissions reçues de l'API |
+| Pas de hardcode | Interdit : `if (user.role === 'admin')` côté frontend |
+| API permissions | L'API expose les abilities via `/api/me` ou endpoint dédié |
+
+**Pattern recommandé :**
+```typescript
+// Frontend Next.js - utiliser les permissions de l'API
+const { can } = usePermissions(); // hook qui consomme /api/me
+
+// Bon : permission vient de l'API
+{can('invoices.create') && <CreateButton />}
+
+// Mauvais : hardcode de rôle
+{user.role === 'admin' && <CreateButton />}
+```
+
 ### Abus métier
 
 | Scénario d'abus | Mitigation |
@@ -81,6 +104,8 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 - FormRequest `authorize()` incohérent avec la Policy
 - AuthZ implicite (pas de `$this->authorize()` ni Policy check)
 - CORS permissif (`*`) en production
+- Frontend hardcode des rôles/permissions au lieu de consommer l'API (`if role === 'admin'`)
+- Permissions UI non synchronisées avec les Policies backend
 :::
 
 ## Checklist Done
@@ -97,6 +122,8 @@ Vérifie la sécurité : OWASP Top 10, abus métier et contrôle d'accès (AuthZ
 - [ ] CORS configuré par domaine autorisé
 - [ ] Rate limiting sur endpoints sensibles
 - [ ] Logs d'accès sur actions critiques
+- [ ] Permissions frontend consomment l'API (pas de hardcode de rôles)
+- [ ] API expose les abilities utilisateur (`/api/me` ou équivalent)
 ```
 
 ## Exemple minimal
