@@ -162,4 +162,4 @@ PASS
 ## Ressources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Laravel Security Best Practices](https://laravel.com/docs/security)
+- [Laravel Security Best Practices](https://laravel.com/docs/11.x/authorization)
