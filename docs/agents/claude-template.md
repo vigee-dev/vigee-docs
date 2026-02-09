@@ -141,7 +141,7 @@ Stack obligatoire pour tout endpoint non trivial :
 ## 12) Tests
 
 - Backend : tests sur règles métier critiques + permissions (PHPUnit/Pest).
-- Frontend : Playwright sur 2–3 parcours critiques (happy path + auth/permissions).
+- Frontend : MCP Chrome DevTools sur 2–3 parcours critiques (happy path + auth/permissions).
 - Chaque bug corrigé doit ajouter un test de non-régression quand pertinent.
 - Pas de tests cosmétiques : chaque test protège un risque réel.
 
@@ -268,7 +268,7 @@ Les agents entre parenthèses sont conditionnels.
 ## Checklist PR
 
 ```markdown
-- [ ] Tests passent (`php artisan test` + `pnpm test:e2e`)
+- [ ] Tests passent (`php artisan test` + tests MCP via Chrome DevTools)
 - [ ] Pas de régression
 - [ ] Code formaté (PSR-12 + Prettier)
 - [ ] Migrations réversibles
@@ -302,7 +302,7 @@ Adapter le template selon votre contexte :
 | Si votre projet... | Modifier... |
 |--------------------|-------------|
 | Utilise Passport au lieu de Sanctum | Section Auth |
-| N'a pas de frontend | Retirer sections Next.js et Playwright |
-| Utilise Jest au lieu de Playwright | Section Tests |
+| N'a pas de frontend | Retirer sections Next.js et MCP Chrome DevTools |
+| Utilise Jest au lieu de MCP Chrome DevTools | Section Tests |
 | A des scripts de déploiement custom | Section Commandes |
 | N'utilise pas Scribe | Retirer section 7 |

@@ -1,6 +1,6 @@
 # Quality Gate Agent
 
-Vérifie la qualité : tests PHPUnit côté Laravel, tests Playwright côté Next.js.
+Vérifie la qualité : tests PHPUnit côté Laravel, tests MCP Chrome DevTools côté Next.js.
 
 ## Quand l'utiliser
 
@@ -21,8 +21,8 @@ Vérifie la qualité : tests PHPUnit côté Laravel, tests Playwright côté Nex
 |--------|--------|
 | Feature Spec | Critères d'acceptation |
 | Code implémenté | Fichiers modifiés |
-| Tests existants | `/tests` Laravel, `/e2e` Next.js |
-| Coverage actuel | Rapport PHPUnit/Playwright |
+| Tests existants | `/tests` Laravel, `/tests/mcp/scenarios` Next.js |
+| Coverage actuel | Rapport PHPUnit + scénarios MCP |
 
 ## Sortie attendue
 
@@ -45,19 +45,26 @@ public function test_invoice_creation_validates_input()
 public function test_invoice_creation_returns_resource()
 ```
 
-### Tests Frontend (Playwright)
+### Tests Frontend (MCP Chrome DevTools)
 
 | Test | Fichier | Statut |
 |------|---------|--------|
-| Liste factures | invoices.spec.ts | OK/KO |
-| Formulaire création | invoice-form.spec.ts | OK/KO |
+| Liste factures | 07-invoices.md (S1) | OK/KO |
+| Formulaire création | 07-invoices.md (S2) | OK/KO |
 
-#### Tests requis
-```typescript
-// e2e/invoices.spec.ts
-test('user sees invoice list')
-test('user can filter by status')
-test('user can download PDF')
+#### Scénarios requis
+```markdown
+// tests/mcp/scenarios/07-invoices.md
+
+## S1 — Liste des factures
+1. Naviguer vers /invoices
+2. Vérifier que la liste s'affiche avec pagination
+3. Filtrer par statut → vérifier le filtrage
+
+## S2 — Création de facture
+1. Cliquer sur "Créer une facture"
+2. Remplir le formulaire → valider
+3. Vérifier le toast de confirmation
 ```
 
 ### Couverture
@@ -136,23 +143,28 @@ public function test_non_owner_cannot_download_invoice_pdf()
 }
 ```
 
-### Tests Frontend (Playwright)
+### Tests Frontend (MCP Chrome DevTools)
 
 | Test | Fichier | Statut |
 |------|---------|--------|
-| Téléchargement PDF | invoice-pdf.spec.ts | OK |
+| Téléchargement PDF | 07-invoices.md (S3) | OK |
 
-#### Tests requis
-```typescript
-// e2e/invoice-pdf.spec.ts
-test('download button triggers PDF download', async ({ page }) => {
-  await page.goto('/invoices/1');
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.click('[data-testid="download-pdf"]')
-  ]);
-  expect(download.suggestedFilename()).toContain('.pdf');
-});
+#### Scénarios requis
+```markdown
+// tests/mcp/scenarios/07-invoices.md
+
+## S3 — Téléchargement PDF
+
+### Prérequis
+- Facture existante dans la liste
+
+### Actions
+1. Naviguer vers la facture /invoices/1
+2. Cliquer sur le bouton "Télécharger PDF"
+
+### Attendu
+- Téléchargement déclenché
+- Fichier .pdf généré
 ```
 
 ### Verdict
